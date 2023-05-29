@@ -1,0 +1,40 @@
+package com.cerence.kmmnewssample
+
+import android.os.Parcelable
+import com.cerence.kmmnewssample.presentation.NewsViewModel
+import io.ktor.client.engine.android.*
+import kotlinx.parcelize.Parcelize
+import org.koin.androidx.viewmodel.dsl.viewModel
+import org.koin.androidx.viewmodel.dsl.viewModelOf
+import org.koin.dsl.module
+
+class AndroidPlatform : Platform {
+    override val name: String = "Android ${android.os.Build.VERSION.SDK_INT}"
+}
+
+actual fun getPlatform(): Platform = AndroidPlatform()
+
+/**
+ * shared implementation of parcelable
+ */
+actual typealias CommonParcelize = Parcelize
+
+actual typealias CommonParcelable = Parcelable
+
+actual fun platformModule() = module {
+    single {
+        Android.create()
+    }
+
+    /**
+     *
+     * for android koin has a special viewmodel scope that we can use
+     * to create a viewmodel
+     *
+     */
+
+    viewModel {
+        NewsViewModel(get())
+    }
+//    viewModelOf(::NewsViewModel)
+}
