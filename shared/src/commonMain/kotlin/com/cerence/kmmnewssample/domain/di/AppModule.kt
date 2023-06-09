@@ -5,6 +5,7 @@ import com.cerence.kmmnewssample.data.remote.service.ImplNewsApiService
 import com.cerence.kmmnewssample.data.repository.AbstractApiRepository
 import com.cerence.kmmnewssample.data.repository.ImplNewsApiRepository
 import com.cerence.kmmnewssample.domain.usecase.NewsUseCase
+import com.cerence.kmmnewssample.platformModule
 import io.ktor.client.*
 import io.ktor.client.engine.*
 import io.ktor.client.plugins.contentnegotiation.*
@@ -16,23 +17,28 @@ import org.koin.dsl.KoinAppDeclaration
 import org.koin.dsl.module
 
 
-fun initKoin(baseUrl: String, appDeclaration: KoinAppDeclaration = {}) = startKoin {
-    modules(appModule(baseUrl))
+fun initKoin(
+    baseUrl: String, enableNetworkLogs: Boolean = false, appDeclaration: KoinAppDeclaration = {}
+) = startKoin {
+    appDeclaration()
+    modules(commonModule(baseUrl,enableNetworkLogs))
 }
 
-private fun appModule(baseUrl: String) = apiRepositoryModule(baseUrl)
+// called by iOS
+fun initKoin(baseUrl: String) = initKoin(enableNetworkLogs = true, baseUrl = baseUrl) {}
 
-fun getApiKey() = "1acfaefcb4414f0eb1afb2f52aed9547"
+fun commonModule(baseUrl: String,enableNetworkLogs: Boolean) =
+    useCaseModule() + apiRepositoryModule(
+    baseUrl = baseUrl, enableNetworkLogs = enableNetworkLogs
+    ) + platformModule()
 
-private fun useCaseModule() = module {
-
-}
-
-private fun apiRepositoryModule(baseUrl: String) = module {
-
+fun useCaseModule() = module {
     single {
         NewsUseCase(get())
     }
+}
+
+fun apiRepositoryModule(baseUrl: String, enableNetworkLogs: Boolean) = module {
 
     single<AbstractApiRepository> {
         ImplNewsApiRepository(get())
@@ -47,19 +53,17 @@ private fun apiRepositoryModule(baseUrl: String) = module {
     }
 
     single {
-        getHttpModule(get(),get(),true)
+        getHttpModule(get(), get(), enableNetworkLogs)
     }
 }
 
 private fun getHttpModule(
-    httpClientEngine: HttpClientEngine,
-    json: Json,
-    enableNetworkLogs: Boolean
-) {
-    HttpClient(engine = httpClientEngine) {
-        install(ContentNegotiation) {
-            json(json)
-        }
+    httpClientEngine: HttpClientEngine, json: Json, enableNetworkLogs: Boolean
+) = HttpClient(engine = httpClientEngine) {
+    install(ContentNegotiation) {
+        json(json)
+    }
+    if (enableNetworkLogs) {
         install(Logging) {
             logger = Logger.SIMPLE
             level = LogLevel.ALL
@@ -67,6 +71,4 @@ private fun getHttpModule(
     }
 }
 
-private fun createJson() {
-    Json { isLenient = true;ignoreUnknownKeys = true }
-}
+fun createJson() = Json { isLenient = true; ignoreUnknownKeys = true }

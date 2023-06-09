@@ -67,7 +67,7 @@ private val DarkColors = darkColorScheme(
 )
 
 @Composable
-fun NewsTheme(
+fun AppTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
@@ -78,11 +78,11 @@ fun NewsTheme(
         } else {
             if (darkTheme) DarkColors else LightColors
         }
-    
+
     MaterialTheme(
         colorScheme = colorScheme,
         shapes = NewsMainThemeShapes,
-        typography = typography,
-        content
+        typography = KmmNewsTypography,
+        content = content
     )
 }

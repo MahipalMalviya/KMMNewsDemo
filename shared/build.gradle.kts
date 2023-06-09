@@ -1,19 +1,39 @@
 plugins {
     kotlin("multiplatform")
+    kotlin("native.cocoapods")
     id("com.android.library")
     kotlin(KotlinPlugins.serialization) version "1.7.10"
+    id(Realm.pluginId)
     id(KotlinPlugins.parcelize)
 }
 
+version = "1.0"
+
 kotlin {
     android()
-    
-    listOf(
-        iosX64(),
-        iosArm64(),
-        iosSimulatorArm64()
-    ).forEach {
-        it.binaries.framework {
+    iosX64()
+    iosArm64()
+    iosSimulatorArm64()
+
+
+    kotlin.targets.withType(org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget::class.java) {
+
+        // export correct artifact to use all classes of library directly from Swift
+
+        binaries.withType(org.jetbrains.kotlin.gradle.plugin.mpp.Framework::class.java).all {
+            export("dev.icerock.moko:mvvm-core:0.13.1")
+        }
+
+        binaries.all {
+            binaryOptions["memoryModel"] = "experimental"
+        }
+    }
+    cocoapods {
+        summary = "Some description for the Shared Module"
+        homepage = "Link to the Shared Module homepage"
+        ios.deploymentTarget = "14.1"
+        podfile = project.file("../iosApp/Podfile")
+        framework {
             baseName = "shared"
         }
     }
@@ -28,6 +48,9 @@ kotlin {
                     implementation(clientSerialization)
                     implementation(contentNegotiation)
                     implementation(json)
+                }
+                with(Realm) {
+                    implementation(realm)
                 }
                 with(Koin) {
                     implementation(koin)
@@ -44,9 +67,7 @@ kotlin {
                 with(Coroutines) {
                     implementation(coroutines)
                 }
-                with(ViewModel) {
-                    implementation(viewModel)
-                }
+
             }
         }
         val commonTest by getting {
@@ -86,7 +107,6 @@ kotlin {
 }
 
 android {
-    namespace = "com.cerence.kmmnewssample"
     compileSdk = 32
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     defaultConfig {

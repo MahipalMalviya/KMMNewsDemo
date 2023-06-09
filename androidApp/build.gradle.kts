@@ -5,7 +5,6 @@ plugins {
 }
 
 android {
-    namespace = "com.cerence.kmmnewssample.android"
     compileSdk = 33
     defaultConfig {
         applicationId = "com.cerence.kmmnewssample.android"
@@ -14,22 +13,19 @@ android {
         versionCode = 1
         versionName = "1.0"
     }
-    buildFeatures {
-        compose = true
-    }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.3.0"
-    }
-    packagingOptions {
-        resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
-        }
-    }
     buildTypes {
         getByName("release") {
             isMinifyEnabled = false
         }
     }
+    buildFeatures {
+        compose = true
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.3.0"
+    }
+
     applicationVariants.all {
         kotlin.sourceSets {
             getByName(name) {
@@ -43,11 +39,11 @@ dependencies {
     implementation(project(":shared"))
 
     with(ComposeDestination){
-        implementation(core)
+
         implementation(composeDestination)
         ksp(composeDestinationPlugin)
     }
-    with(Material3) {
+    with(Material3){
         implementation(material3)
         implementation(window)
     }
@@ -56,18 +52,26 @@ dependencies {
         implementation(webview)
     }
     with(Compose){
-        implementation(composeUI)
-        implementation(util)
-        implementation(composeActivity)
-        implementation(composeMaterial)
-        implementation(composeToolingDebug)
-        debugImplementation(composeToolingDebug)
+        implementation(util){
 
+        }
+        implementation(composeActivity) {
+            because("We are not using  xml its better to use compose activity ")
+        }
+
+
+        implementation(composeToolingDebug){
+            because("Supports preview of composables")
+        }
+
+        debugImplementation(composeToolingDebug) {
+
+            because("Supports previews and other tooling stuff." )
+        }
+        implementation(composeUI) {
+            because("Supports compose ")
+        }
     }
+
     implementation(Koin.koinAndroid)
-//    implementation("androidx.compose.ui:ui-tooling:1.2.1")
-    implementation("androidx.compose.ui:ui-tooling-preview:1.3.3")
-    implementation("androidx.compose.foundation:foundation:1.3.1")
-//    implementation("androidx.compose.material:material:1.2.1")
-//    implementation("androidx.activity:activity-compose:1.5.1")
 }

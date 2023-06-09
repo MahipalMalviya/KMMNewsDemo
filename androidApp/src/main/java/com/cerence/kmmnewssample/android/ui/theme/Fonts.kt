@@ -1,30 +1,37 @@
 package com.cerence.kmmnewssample.android.ui.theme
 
-import androidx.compose.ui.text.PlatformParagraphStyle
-import androidx.compose.ui.text.PlatformSpanStyle
+
+import androidx.compose.material3.Typography
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.style.LineHeightStyle
-import androidx.compose.material3.Typography
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.unit.sp
 import com.cerence.kmmnewssample.android.R
 
-val fontFamily = FontFamily(
+val Popins = FontFamily(
     Font(R.font.light),
     Font(R.font.regular),
     Font(R.font.medium)
 )
 
+
+
+@Suppress("DEPRECATION")
 val defaultTextStyle = TextStyle(
-    fontFamily = fontFamily,
-    platformStyle = PlatformTextStyle(PlatformSpanStyle.Default, PlatformParagraphStyle.Default),
-    lineHeightStyle = LineHeightStyle(LineHeightStyle.Alignment.Center,LineHeightStyle.Trim.None)
+    fontFamily = Popins,
+    platformStyle = PlatformTextStyle(
+        includeFontPadding = false
+    ),
+    lineHeightStyle = LineHeightStyle(
+        alignment = LineHeightStyle.Alignment.Center,
+        trim = LineHeightStyle.Trim.None
+    )
 )
 
-val typography = Typography(
+val KmmNewsTypography = Typography(
     displayLarge = defaultTextStyle.copy(
         fontSize = 57.sp, lineHeight = 64.sp, letterSpacing = (-0.25).sp
     ),

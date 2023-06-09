@@ -1,11 +1,22 @@
 package com.cerence.kmmnewssample.data.remote.dto
 
+import com.cerence.kmmnewssample.CommonParcelable
+import com.cerence.kmmnewssample.CommonParcelize
 import com.cerence.kmmnewssample.domain.domain_model.NewsDataModel
 
 @kotlinx.serialization.Serializable
 data class NewsResponseDto(
     val articles: List<Article>,
 )
+
+@CommonParcelize
+@kotlinx.serialization.Serializable
+data class Source(
+
+    val id: String? = "",
+
+    val name: String
+): CommonParcelable
 
 @kotlinx.serialization.Serializable
 data class Article(
@@ -24,14 +35,6 @@ data class Article(
     val url: String,
 
     val urlToImage: String? = ""
-)
-
-@kotlinx.serialization.Serializable
-data class Source(
-
-    val id: String? = "",
-
-    val name: String
 )
 
 fun NewsResponseDto.getDataModel() = this.articles

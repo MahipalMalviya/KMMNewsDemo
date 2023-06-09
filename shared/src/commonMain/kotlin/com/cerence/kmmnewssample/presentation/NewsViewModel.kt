@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class NewsViewModel(val newsUseCase: NewsUseCase): ViewModel() {
+class NewsViewModel(private val newsUseCase: NewsUseCase): ViewModel() {
 
     private var _state = MutableStateFlow<NewsState>(NewsState.Idle)
     val state = _state.asStateFlow()
