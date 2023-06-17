@@ -6,11 +6,14 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -30,6 +33,8 @@ import com.cerence.kmmnewssample.presentation.NewsViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.getViewModel
 
 @RootNavGraph(start = true)
@@ -39,22 +44,61 @@ fun Home(
     destinationsNavigator: DestinationsNavigator,
     viewModel: NewsViewModel = getViewModel()
 ) {
-    LaunchedEffect(key1 = Unit, block = {
-        viewModel.newsIntent(NewsEvent.GetHeadlines)
-    })
+    NavigationDrawer(destinationsNavigator, viewModel)
+}
 
-    val state by viewModel.state.collectAsState()
-    Home(state, destinationsNavigator = destinationsNavigator)
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun NavigationDrawer(
+    destinationsNavigator: DestinationsNavigator,
+    viewModel: NewsViewModel = getViewModel()
+) {
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        gesturesEnabled = true,
+        drawerContent = {
+            ModalDrawerSheet {
+                Text("Drawer title", modifier = Modifier.padding(16.dp))
+                Divider()
+                NavigationDrawerItem(
+                    label = { Text(text = "News") },
+                    selected = false,
+                    onClick = { }
+                )
+            }
+        },
+    ) {
+        //screen content
+        LaunchedEffect(key1 = Unit, block = {
+            viewModel.newsIntent(NewsEvent.GetHeadlines)
+        })
 
+        val state by viewModel.state.collectAsState()
+        HomePage(state, destinationsNavigator = destinationsNavigator, drawerState, scope)
+    }
 }
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
-private fun Home(state: NewsState, destinationsNavigator: DestinationsNavigator) {
+private fun HomePage(
+    state: NewsState,
+    destinationsNavigator: DestinationsNavigator,
+    drawerState: DrawerState,
+    scope: CoroutineScope
+) {
     Scaffold(modifier = Modifier.fillMaxSize(), topBar = {
         HomeAppBar(
             titleRes = R.string.app_heading,
-            actionIcons = { }
+            actionIcons = { },
+            navigationIcon = {
+                IconButton(onClick = {
+                    scope.launch { if (drawerState.isClosed) drawerState.open() else drawerState.close() }
+                }) {
+                    Icon(imageVector = Icons.Default.Menu,contentDescription = null)
+                }
+            }
         )
     }) { innerPadding ->
         val listState = rememberLazyListState()
@@ -78,10 +122,12 @@ private fun Home(state: NewsState, destinationsNavigator: DestinationsNavigator)
                         Text(text = state.errorMsg, style = MaterialTheme.typography.headlineMedium)
                     }
                 }
+
                 is NewsState.Idle -> {}
                 is NewsState.Loading -> {
                     placeHolder()
                 }
+
                 is NewsState.Success -> {
                     headlines(state.list, destinationsNavigator)
                 }
