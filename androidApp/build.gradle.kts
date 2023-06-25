@@ -72,6 +72,9 @@ dependencies {
             because("Supports compose ")
         }
     }
+    with(Lottie) {
+        implementation(Animation)
+    }
 
     implementation(Koin.koinAndroid)
 }
