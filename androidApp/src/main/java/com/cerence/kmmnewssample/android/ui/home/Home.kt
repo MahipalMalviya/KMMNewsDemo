@@ -1,11 +1,9 @@
 package com.cerence.kmmnewssample.android.ui.home
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
@@ -20,23 +18,16 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
-import coil.size.Scale
 import com.cerence.kmmnewssample.android.R
 import com.cerence.kmmnewssample.android.ui.components.HomeAppBar
 import com.cerence.kmmnewssample.android.ui.components.Loader
-import com.cerence.kmmnewssample.domain.domain_model.NewsDataModel
 import com.cerence.kmmnewssample.presentation.NewsEvent
 import com.cerence.kmmnewssample.presentation.NewsState
 import com.cerence.kmmnewssample.presentation.NewsViewModel
@@ -73,7 +64,7 @@ fun Home(
                     scope.launch { drawerState.close() }
                     controller.navigate(route) {
                         launchSingleTop = true
-                        popUpTo(controller.graph.startDestDisplayName!!)
+                        popUpTo(controller.graph.startDestDisplayName)
                     }
                 })
             }
@@ -114,20 +105,10 @@ fun Home(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun NavigationDrawer(
-    destinationsNavigator: DestinationsNavigator,
-    viewModel: NewsViewModel = getViewModel(),
-    startDestination: String = "News"
-) {
-
-}
-
-sealed class DrawerScreens(val title: String,val route: String) {
-    object Home : DrawerScreens("News","News")
-    object Movie : DrawerScreens("Movies", "Movies")
-    object Help : DrawerScreens( "Help", "Help")
+sealed class DrawerScreens(val title: String,val route: String, val drawableId: Int) {
+    object Home : DrawerScreens("News","News", R.drawable.ic_news)
+    object Movie : DrawerScreens("Movies", "Movies", R.drawable.ic_movie)
+    object Help : DrawerScreens( "Help", "Help", R.drawable.ic_help)
 }
 private val screens = listOf(
     DrawerScreens.Home,
@@ -143,80 +124,48 @@ fun Drawer(
     Column(
         modifier
             .fillMaxSize()
-            .padding(start = 24.dp, top = 48.dp)
     ) {
-        Icon(
-            painter = painterResource(R.drawable.baseline_home_24),
-            contentDescription = "App icon"
-        )
+        DrawerHeader()
+        Spacer(modifier = Modifier.height(2.dp))
+        Divider(color = Color.Black, modifier = Modifier.height(1.dp))
+        Spacer(modifier = Modifier.height(2.dp))
         screens.forEach { screen ->
-            Spacer(Modifier.height(24.dp))
-            Text(
-                text = screen.title,
-                style = MaterialTheme.typography.headlineSmall,
-                modifier = Modifier.clickable {
+            Row(modifier = Modifier
+                .padding(start = 12.dp, top = 12.dp)
+                .clickable {
                     onDestinationClicked(screen.route)
-                }
-            )
+                }, verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center) {
+                Icon(
+                    painter = painterResource(id = screen.drawableId),
+                    contentDescription = screen.title
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = screen.title,
+                    style = MaterialTheme.typography.headlineSmall,
+                )
+            }
         }
     }
 }
 
 @Composable
-fun DrawerBody(navController: DestinationsNavigator?, closeNavDrawer: () -> Unit) {
-    Column {
-        DrawerMenuItem(
-            iconDrawableId = R.drawable.baseline_home_24,
-            text = "News",
-            onItemClick = {
-                navController?.navigate("News")
-                closeNavDrawer()
-            }
-        )
-        DrawerMenuItem(
-            iconDrawableId = R.drawable.baseline_movie_24,
-            text = "Movies",
-            onItemClick = {
-                navController?.navigate("Movies")
-                closeNavDrawer()
-            }
-        )
-    }
-}
-
-
-@Composable
-private fun DrawerMenuItem(
-    iconDrawableId: Int,
-    text: String,
-    onItemClick: () -> Unit){
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onItemClick() }
-            .padding(16.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ){
-        Icon(
-            painter = painterResource(iconDrawableId),
-            contentDescription = null,
-        )
-        Spacer(modifier = Modifier.width(16.dp))
-        Text(text = text )
-    }
-}
-
-
-@Composable
 fun DrawerHeader(){
-    Row(
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 64.dp)
+            .padding(vertical = 20.dp)
         ,
-        horizontalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
     ) {
-        Text(text = "News", fontSize = 60.sp)
+        Icon(
+            painter = painterResource(R.drawable.ic_home),
+            contentDescription = "App icon",
+            modifier = Modifier.size(50.dp)
+        )
+        Text(text = "KMM", fontSize = 14.sp)
     }
 }
 
