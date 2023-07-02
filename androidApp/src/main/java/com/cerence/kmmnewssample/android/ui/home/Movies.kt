@@ -86,6 +86,22 @@ fun Movies(
             }
         )
     }) { innerPadding ->
+        val listState = rememberLazyListState()
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .consumedWindowInsets(innerPadding),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            state = listState,
+            contentPadding = PaddingValues(16.dp)
+        ) {
+            item {
+                Spacer(modifier = Modifier.windowInsetsTopHeight(WindowInsets.safeDrawing))
+            }
 
+
+        }
     }
 }
